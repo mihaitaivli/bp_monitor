@@ -1,0 +1,76 @@
+type User {
+  id: ID!
+  name: String!
+  records: [Record!]!
+}
+
+type Record {
+  id: ID!
+  systolic: Int!
+  diastolic: Int!
+  bpm: Int
+  createdAt: String!
+  user: User!
+}
+
+input NewUser {
+  name: String!
+}
+
+input RecordsWhere {
+  id_in: [ID!]!
+  id_not_in: [ID!]!
+  systolic_eq: Int
+  systolic_gt: Int
+  systolic_lt: Int
+  diastolic_eq: Int
+  diastolic_gt: Int
+  diastolic_lt: Int
+  bpm_eq: Int
+  bpm_gt: Int
+  bpm_lt: Int
+  createdAt_eq: String
+  createdAt_gt: String
+  createdAt_lt: String
+}
+
+enum RecordsSortBy {
+  systolic_ASC
+  systolic_DESC
+  diastolic_ASC
+  diastolic_DESC
+  bpm_ASC
+  bpm_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+input Pagination {
+  first: Int
+  last: Int
+  skip: Int
+  after: ID
+  before: ID
+}
+
+input NewRecord {
+  systolic: Int!
+  diastolic: Int!
+  bpm: Int
+  userId: ID!
+}
+
+type Query {
+  user(id: ID!): User
+  record(id: ID!): Record
+  records(
+    where: RecordsWhere!,
+    sortBy: RecordsSortBy,
+    paginate: Pagination
+  ): [Record!]!
+}
+
+type Mutation {
+  addUser(input: NewUser!): ID
+  addRecord(input: NewRecord!): ID
+}
