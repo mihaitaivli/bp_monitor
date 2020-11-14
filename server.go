@@ -9,9 +9,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/mihaitaivli/bp_monitor/graph"
 	"github.com/mihaitaivli/bp_monitor/graph/generated"
+	dbUtils "github.com/mihaitaivli/bp_monitor/dbUtils"
 )
 
 const defaultPort = "8080"
+var Client = dbUtils.InitConnection()
 
 func main() {
 	port := os.Getenv("PORT")
