@@ -11,11 +11,23 @@ import (
 	"github.com/mihaitaivli/bp_monitor/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+func (r *mutationResolver) AddUser(ctx context.Context, input model.NewUser) (*string, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+func (r *mutationResolver) AddRecord(ctx context.Context, input model.NewRecord) (*string, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Record(ctx context.Context, id string) (*model.Record, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Records(ctx context.Context, where model.RecordsWhere, sortBy *model.RecordsSortBy, paginate *model.Pagination) ([]*model.Record, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

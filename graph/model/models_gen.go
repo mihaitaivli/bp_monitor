@@ -2,19 +2,112 @@
 
 package model
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
+type NewRecord struct {
+	Systolic  int    `json:"systolic"`
+	Diastolic int    `json:"diastolic"`
+	Bpm       *int   `json:"bpm"`
+	UserID    string `json:"userId"`
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
+type NewUser struct {
+	Name string `json:"name"`
+}
+
+type Pagination struct {
+	First  *int    `json:"first"`
+	Last   *int    `json:"last"`
+	Skip   *int    `json:"skip"`
+	After  *string `json:"after"`
+	Before *string `json:"before"`
+}
+
+type Record struct {
+	ID        string `json:"id"`
+	Systolic  int    `json:"systolic"`
+	Diastolic int    `json:"diastolic"`
+	Bpm       *int   `json:"bpm"`
+	CreatedAt string `json:"createdAt"`
+	User      *User  `json:"user"`
+}
+
+type RecordsWhere struct {
+	IDIn        []string `json:"id_in"`
+	IDNotIn     []string `json:"id_not_in"`
+	SystolicEq  *int     `json:"systolic_eq"`
+	SystolicGt  *int     `json:"systolic_gt"`
+	SystolicLt  *int     `json:"systolic_lt"`
+	DiastolicEq *int     `json:"diastolic_eq"`
+	DiastolicGt *int     `json:"diastolic_gt"`
+	DiastolicLt *int     `json:"diastolic_lt"`
+	BpmEq       *int     `json:"bpm_eq"`
+	BpmGt       *int     `json:"bpm_gt"`
+	BpmLt       *int     `json:"bpm_lt"`
+	CreatedAtEq *string  `json:"createdAt_eq"`
+	CreatedAtGt *string  `json:"createdAt_gt"`
+	CreatedAtLt *string  `json:"createdAt_lt"`
 }
 
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID      string    `json:"id"`
+	Name    string    `json:"name"`
+	Records []*Record `json:"records"`
+}
+
+type RecordsSortBy string
+
+const (
+	RecordsSortBySystolicAsc   RecordsSortBy = "systolic_ASC"
+	RecordsSortBySystolicDesc  RecordsSortBy = "systolic_DESC"
+	RecordsSortByDiastolicAsc  RecordsSortBy = "diastolic_ASC"
+	RecordsSortByDiastolicDesc RecordsSortBy = "diastolic_DESC"
+	RecordsSortByBpmAsc        RecordsSortBy = "bpm_ASC"
+	RecordsSortByBpmDesc       RecordsSortBy = "bpm_DESC"
+	RecordsSortByCreatedAtAsc  RecordsSortBy = "createdAt_ASC"
+	RecordsSortByCreatedAtDesc RecordsSortBy = "createdAt_DESC"
+)
+
+var AllRecordsSortBy = []RecordsSortBy{
+	RecordsSortBySystolicAsc,
+	RecordsSortBySystolicDesc,
+	RecordsSortByDiastolicAsc,
+	RecordsSortByDiastolicDesc,
+	RecordsSortByBpmAsc,
+	RecordsSortByBpmDesc,
+	RecordsSortByCreatedAtAsc,
+	RecordsSortByCreatedAtDesc,
+}
+
+func (e RecordsSortBy) IsValid() bool {
+	switch e {
+	case RecordsSortBySystolicAsc, RecordsSortBySystolicDesc, RecordsSortByDiastolicAsc, RecordsSortByDiastolicDesc, RecordsSortByBpmAsc, RecordsSortByBpmDesc, RecordsSortByCreatedAtAsc, RecordsSortByCreatedAtDesc:
+		return true
+	}
+	return false
+}
+
+func (e RecordsSortBy) String() string {
+	return string(e)
+}
+
+func (e *RecordsSortBy) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RecordsSortBy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RecordsSortBy", str)
+	}
+	return nil
+}
+
+func (e RecordsSortBy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
