@@ -6,13 +6,30 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/mihaitaivli/bp_monitor/dbUtils"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 
 	"github.com/mihaitaivli/bp_monitor/graph/generated"
 	"github.com/mihaitaivli/bp_monitor/graph/model"
 )
 
+var Client = dbUtils.InitConnection()
+
 func (r *mutationResolver) AddUser(ctx context.Context, input model.NewUser) (*string, error) {
-	panic(fmt.Errorf("not implemented"))
+	defer Client.Disconnect(context.Background())
+	collection := Client.Database("bp_log").Collection("users")
+
+	insertUserResult, err := collection.InsertOne(context.Background(), input)
+	if err != nil {
+		log.Println(err)
+		return nil,err
+	}
+
+	insertedId := insertUserResult.InsertedID.(primitive.ObjectID).String()
+	log.Println("Successfully addes user", insertedId)
+	//return &insertedId, nil
+	return &insertedId, nil
 }
 
 func (r *mutationResolver) AddRecord(ctx context.Context, input model.NewRecord) (*string, error) {

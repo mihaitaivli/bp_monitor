@@ -11,11 +11,11 @@ import (
 
 // InitConnection returns a client that connects to the db
 func InitConnection() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://root:example@localhost/bp_log"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://root:example@localhost"))
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		fmt.Println("connected :success")
+		fmt.Println("connected to the db :success")
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
