@@ -27,9 +27,8 @@ func (r *mutationResolver) AddUser(ctx context.Context, input model.NewUser) (*s
 		return nil, err
 	}
 
-	insertedID := insertUserResult.InsertedID.(primitive.ObjectID).String()
+	insertedID := insertUserResult.InsertedID.(primitive.ObjectID).Hex()
 	log.Println("Successfully addes user", insertedID)
-	//return &insertedId, nil
 	return &insertedID, nil
 }
 
