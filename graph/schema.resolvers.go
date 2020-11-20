@@ -9,19 +9,11 @@ import (
 	"log"
 
 	"github.com/mihaitaivli/bp_monitor/dbUtils"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"github.com/mihaitaivli/bp_monitor/graph/generated"
 	"github.com/mihaitaivli/bp_monitor/graph/model"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-var client = dbUtils.InitConnection()
-
-type MongoFields struct {
-	ID   primitive.ObjectID `bson:"_id, omitempty"`
-	Name string             `bson:"name"`
-}
 
 func (r *mutationResolver) AddUser(ctx context.Context, input model.NewUser) (*string, error) {
 	collection := client.Database("bp_log").Collection("users")
@@ -81,8 +73,28 @@ func (r *queryResolver) Record(ctx context.Context, id string) (*model.Record, e
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Records(ctx context.Context, where model.RecordsWhere, sortBy *model.RecordsSortBy, paginate *model.Pagination) ([]*model.Record, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) Records(ctx context.Context, where *model.RecordsWhere, sortBy *model.RecordsSortBy, paginate *model.Pagination) ([]*model.Record, error) {
+	record := model.Record{
+		ID:        "123",
+		Systolic:  120,
+		Diastolic: 70,
+	}
+
+	records := []*model.Record{&record}
+	return records, nil
+}
+
+func (r *userResolver) Records(ctx context.Context, obj *model.User) ([]*model.Record, error) {
+	fmt.Println(ctx)
+
+	record := model.Record{
+		ID:        "123456789",
+		Systolic:  140,
+		Diastolic: 75,
+	}
+
+	records := []*model.Record{&record}
+	return records, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -91,5 +103,22 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+var client = dbUtils.InitConnection()
+
+type MongoFields struct {
+	ID   primitive.ObjectID `bson:"_id, omitempty"`
+	Name string             `bson:"name"`
+}

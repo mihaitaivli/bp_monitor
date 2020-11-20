@@ -37,6 +37,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -50,7 +51,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Record  func(childComplexity int, id string) int
-		Records func(childComplexity int, where model.RecordsWhere, sortBy *model.RecordsSortBy, paginate *model.Pagination) int
+		Records func(childComplexity int, where *model.RecordsWhere, sortBy *model.RecordsSortBy, paginate *model.Pagination) int
 		User    func(childComplexity int, id string) int
 	}
 
@@ -77,7 +78,10 @@ type MutationResolver interface {
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
 	Record(ctx context.Context, id string) (*model.Record, error)
-	Records(ctx context.Context, where model.RecordsWhere, sortBy *model.RecordsSortBy, paginate *model.Pagination) ([]*model.Record, error)
+	Records(ctx context.Context, where *model.RecordsWhere, sortBy *model.RecordsSortBy, paginate *model.Pagination) ([]*model.Record, error)
+}
+type UserResolver interface {
+	Records(ctx context.Context, obj *model.User) ([]*model.Record, error)
 }
 
 type executableSchema struct {
@@ -141,7 +145,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Records(childComplexity, args["where"].(model.RecordsWhere), args["sortBy"].(*model.RecordsSortBy), args["paginate"].(*model.Pagination)), true
+		return e.complexity.Query.Records(childComplexity, args["where"].(*model.RecordsWhere), args["sortBy"].(*model.RecordsSortBy), args["paginate"].(*model.Pagination)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -302,8 +306,8 @@ input NewUser {
 }
 
 input RecordsWhere {
-  id_in: [ID!]!
-  id_not_in: [ID!]!
+  id_in: [ID!]
+  id_not_in: [ID!]
   systolic_eq: Int
   systolic_gt: Int
   systolic_lt: Int
@@ -348,8 +352,8 @@ type Query {
   user(id: ID!): User
   record(id: ID!): Record
   records(
-    where: RecordsWhere!,
-    sortBy: RecordsSortBy,
+    where: RecordsWhere
+    sortBy: RecordsSortBy
     paginate: Pagination
   ): [Record!]!
 }
@@ -357,7 +361,8 @@ type Query {
 type Mutation {
   addUser(input: NewUser!): ID
   addRecord(input: NewRecord!): ID
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -428,10 +433,10 @@ func (ec *executionContext) field_Query_record_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_records_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.RecordsWhere
+	var arg0 *model.RecordsWhere
 	if tmp, ok := rawArgs["where"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-		arg0, err = ec.unmarshalNRecordsWhere2githubᚗcomᚋmihaitaivliᚋbp_monitorᚋgraphᚋmodelᚐRecordsWhere(ctx, tmp)
+		arg0, err = ec.unmarshalORecordsWhere2ᚖgithubᚗcomᚋmihaitaivliᚋbp_monitorᚋgraphᚋmodelᚐRecordsWhere(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -692,7 +697,7 @@ func (ec *executionContext) _Query_records(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Records(rctx, args["where"].(model.RecordsWhere), args["sortBy"].(*model.RecordsSortBy), args["paginate"].(*model.Pagination))
+		return ec.resolvers.Query().Records(rctx, args["where"].(*model.RecordsWhere), args["sortBy"].(*model.RecordsSortBy), args["paginate"].(*model.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1068,14 +1073,14 @@ func (ec *executionContext) _User_records(ctx context.Context, field graphql.Col
 		Object:     "User",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Records, nil
+		return ec.resolvers.User().Records(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2305,7 +2310,7 @@ func (ec *executionContext) unmarshalInputRecordsWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_in"))
-			it.IDIn, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			it.IDIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2313,7 +2318,7 @@ func (ec *executionContext) unmarshalInputRecordsWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_not_in"))
-			it.IDNotIn, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			it.IDNotIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2586,18 +2591,27 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 			out.Values[i] = ec._User_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._User_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "records":
-			out.Values[i] = ec._User_records(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_records(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2884,36 +2898,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2984,11 +2968,6 @@ func (ec *executionContext) marshalNRecord2ᚖgithubᚗcomᚋmihaitaivliᚋbp_mo
 		return graphql.Null
 	}
 	return ec._Record(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNRecordsWhere2githubᚗcomᚋmihaitaivliᚋbp_monitorᚋgraphᚋmodelᚐRecordsWhere(ctx context.Context, v interface{}) (model.RecordsWhere, error) {
-	res, err := ec.unmarshalInputRecordsWhere(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -3269,6 +3248,42 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
+func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -3328,6 +3343,14 @@ func (ec *executionContext) marshalORecordsSortBy2ᚖgithubᚗcomᚋmihaitaivli�
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalORecordsWhere2ᚖgithubᚗcomᚋmihaitaivliᚋbp_monitorᚋgraphᚋmodelᚐRecordsWhere(ctx context.Context, v interface{}) (*model.RecordsWhere, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRecordsWhere(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

@@ -18,8 +18,8 @@ input NewUser {
 }
 
 input RecordsWhere {
-  id_in: [ID!]!
-  id_not_in: [ID!]!
+  id_in: [ID!]
+  id_not_in: [ID!]
   systolic_eq: Int
   systolic_gt: Int
   systolic_lt: Int
@@ -64,8 +64,8 @@ type Query {
   user(id: ID!): User
   record(id: ID!): Record
   records(
-    where: RecordsWhere!,
-    sortBy: RecordsSortBy,
+    where: RecordsWhere
+    sortBy: RecordsSortBy
     paginate: Pagination
   ): [Record!]!
 }

@@ -1,6 +1,6 @@
 generate:
 	@echo "updating resolvers to match the schema"
-	gqlgen generate
+	go run github.com/99designs/gqlgen generate
 
 develop:
 	@echo "starting the server ..."
