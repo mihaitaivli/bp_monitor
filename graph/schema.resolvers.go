@@ -15,8 +15,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (r *mutationResolver) AddUser(ctx context.Context, input model.NewUser) (*string, error) {
+func (r *mutationResolver) AddUser(ctx context.Context, input model.AddUserInput) (*string, error) {
 	collection := client.Database("bp_log").Collection("users")
+
+	// business logic to check user existance
+
+	// obfuscate password
+	input.Password = "test"
 
 	insertUserResult, err := collection.InsertOne(context.Background(), input)
 	if err != nil {

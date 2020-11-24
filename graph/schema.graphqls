@@ -1,20 +1,30 @@
+# --- USER ---
 type User {
   id: ID!
   name: String!
+  email: String!
+  password: String!
+  phone: String
+  dob: String
   records: [Record!]!
 }
 
-type Record {
-  id: ID!
-  systolic: Int!
-  diastolic: Int!
-  bpm: Int
-  createdAt: String!
-  user: User!
+input AddUserInput {
+  name: String!
+  email: String!
+  password: String!
+  phone: String
+  dob: String
 }
 
-input NewUser {
-  name: String!
+# --- RECORD ---
+type Record {
+id: ID!
+systolic: Int!
+diastolic: Int!
+bpm: Int
+createdAt: String!
+user: User!
 }
 
 input RecordsWhere {
@@ -71,6 +81,6 @@ type Query {
 }
 
 type Mutation {
-  addUser(input: NewUser!): ID
+  addUser(input: AddUserInput!): ID
   addRecord(input: NewRecord!): ID
 }

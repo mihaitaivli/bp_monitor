@@ -8,15 +8,19 @@ import (
 	"strconv"
 )
 
+type AddUserInput struct {
+	Name     string  `json:"name"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	Phone    *string `json:"phone"`
+	Dob      *string `json:"dob"`
+}
+
 type NewRecord struct {
 	Systolic  int    `json:"systolic"`
 	Diastolic int    `json:"diastolic"`
 	Bpm       *int   `json:"bpm"`
 	UserID    string `json:"userId"`
-}
-
-type NewUser struct {
-	Name string `json:"name"`
 }
 
 type Pagination struct {
@@ -54,9 +58,13 @@ type RecordsWhere struct {
 }
 
 type User struct {
-	ID      string    `json:"id"`
-	Name    string    `json:"name"`
-	Records []*Record `json:"records"`
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Email    string    `json:"email"`
+	Password string    `json:"password"`
+	Phone    *string   `json:"phone"`
+	Dob      *string   `json:"dob"`
+	Records  []*Record `json:"records"`
 }
 
 type RecordsSortBy string
