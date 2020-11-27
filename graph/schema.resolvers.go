@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mihaitaivli/bp_monitor/dbUtils"
 	"github.com/mihaitaivli/bp_monitor/graph/generated"
 	"github.com/mihaitaivli/bp_monitor/graph/model"
+	"github.com/mihaitaivli/bp_monitor/utils/dbUtils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -35,7 +35,6 @@ func (r *mutationResolver) AddUser(ctx context.Context, input model.AddUserInput
 }
 
 func (r *mutationResolver) AddRecord(ctx context.Context, input model.NewRecord) (*string, error) {
-	// defer client.Disconnect(context.Background())
 	collection := client.Database("bp_log").Collection("records")
 
 	insertRecordResult, err := collection.InsertOne(context.Background(), input)

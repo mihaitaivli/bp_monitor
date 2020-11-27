@@ -3,15 +3,18 @@ package dbUtils
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // InitConnection returns a client that connects to the db
 func InitConnection() *mongo.Client {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://root:example@localhost"))
+	// defer client.Disconnect(context.Background())
+
 	if err != nil {
 		log.Fatal(err)
 	} else {
