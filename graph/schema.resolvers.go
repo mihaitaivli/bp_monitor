@@ -10,7 +10,8 @@ import (
 
 	"github.com/mihaitaivli/bp_monitor/graph/generated"
 	"github.com/mihaitaivli/bp_monitor/graph/model"
-	"github.com/mihaitaivli/bp_monitor/utils/dbUtils"
+	"github.com/mihaitaivli/bp_monitor/utils/authregutils"
+	"github.com/mihaitaivli/bp_monitor/utils/dbutils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -18,7 +19,15 @@ import (
 func (r *mutationResolver) AddUser(ctx context.Context, input model.AddUserInput) (*string, error) {
 	collection := client.Database("bp_log").Collection("users")
 
-	// business logic to check user existance
+	// registration checks
+	ri := authregutils.RegistrationInput{
+		Email: input.Email,
+		Phone: input.Phone,
+		RawPassword: input.Password,
+	}
+
+	userExists := ri.EmailAlreadyRegistered()
+	fmt.Println("Does the user exists already?: ", userExists)
 
 	// obfuscate password
 	input.Password = "test"
@@ -120,7 +129,7 @@ type userResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
-var client = dbUtils.InitConnection()
+var client = dbutils.InitConnection()
 
 type MongoFields struct {
 	ID   primitive.ObjectID `bson:"_id, omitempty"`
