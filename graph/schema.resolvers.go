@@ -20,17 +20,9 @@ func (r *mutationResolver) AddUser(ctx context.Context, input model.AddUserInput
 	collection := client.Database("bp_log").Collection("users")
 
 	// registration checks
-	ri := authregutils.RegistrationInput{
-		Email: input.Email,
-		Phone: input.Phone,
-		RawPassword: input.Password,
-	}
+	registrationInput := authregutils.NewRegistrationInput(input)
+	inputIsValid, error := registrationInput.InputIsValid()
 
-	userExists := ri.EmailAlreadyRegistered()
-	fmt.Println("Does the user exists already?: ", userExists)
-
-	// obfuscate password
-	input.Password = "test"
 
 	insertUserResult, err := collection.InsertOne(context.Background(), input)
 	if err != nil {
