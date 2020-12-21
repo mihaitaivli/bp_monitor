@@ -22,7 +22,7 @@ func (r *mutationResolver) AddUser(ctx context.Context, input model.AddUserInput
 	// registration checks
 	registrationInput := authregutils.NewRegistrationInput(input)
 
-	_, inputError := registrationInput.InputIsValid()
+	inputError := registrationInput.InputIsValid()
 
 	if inputError != nil {
 		return nil, inputError

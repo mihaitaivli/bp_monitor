@@ -28,19 +28,20 @@ func NewRegistrationInput(input model.AddUserInput) *RegistrationInput {
 }
 
 // InputIsValid returns a boolean reflecting the validation status of the input
-func (ri *RegistrationInput) InputIsValid() (bool, error) {
+func (ri *RegistrationInput) InputIsValid() error {
 
 	// check if user exists
 	userAlreadyExists, err := ri.EmailAlreadyRegistered()
 
 	if err != nil {
-		return false, err
-	}
-	if userAlreadyExists == true {
-		return false, fmt.Errorf("email already registered")
+		return err
 	}
 
-	return true, nil
+	if userAlreadyExists == true {
+		return fmt.Errorf("email already registered")
+	}
+
+	return nil
 }
 
 // EmailAlreadyRegistered returns a boolean reflecting the existence in the db
@@ -50,7 +51,6 @@ func (ri *RegistrationInput) EmailAlreadyRegistered() (bool, error) {
 	filter := bson.D{{"email", ri.Email}}
 
 	count, err := collection.CountDocuments(context.Background(), filter)
-	fmt.Println("count is: ", count)
 
 	if err != nil {
 		return false, err
