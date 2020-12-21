@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var TEST_USER_INPUT = model.AddUserInput{
+var TestUserInput = model.AddUserInput{
 	Name:     "Some Name",
 	Email:    "someone@test.com",
 	Password: "testPassword",
@@ -14,9 +14,9 @@ var TEST_USER_INPUT = model.AddUserInput{
 }
 
 func TestNewRegistrationInput (t *testing.T) {
-	ri := NewRegistrationInput(TEST_USER_INPUT)
+	ri := NewRegistrationInput(TestUserInput)
 
-	if ri.Email != TEST_USER_INPUT.Email {
+	if ri.Email != TestUserInput.Email {
 		t.Log("Incorrect value for NewRegistrationInput Email field")
 		t.Fail()
 	}

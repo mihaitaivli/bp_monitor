@@ -21,7 +21,12 @@ func (r *mutationResolver) AddUser(ctx context.Context, input model.AddUserInput
 
 	// registration checks
 	registrationInput := authregutils.NewRegistrationInput(input)
-	inputIsValid, error := registrationInput.InputIsValid()
+
+	_, inputError := registrationInput.InputIsValid()
+
+	if inputError != nil {
+		return nil, inputError
+	}
 
 
 	insertUserResult, err := collection.InsertOne(context.Background(), input)
