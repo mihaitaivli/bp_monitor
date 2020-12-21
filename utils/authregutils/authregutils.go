@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/mihaitaivli/bp_monitor/graph/model"
+	"regexp"
 
 	"github.com/mihaitaivli/bp_monitor/utils/dbutils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,12 +33,18 @@ func (ri *RegistrationInput) InputIsValid() error {
 
 	// check if user exists
 	userAlreadyExists, err := ri.EmailAlreadyRegistered()
+	// check if email is valid
+	emailIsValid := ri.EmailIsValid()
 
 	if err != nil {
 		return err
 	}
 
-	if userAlreadyExists == true {
+	if !emailIsValid {
+		return fmt.Errorf("email is invalid")
+	}
+
+	if userAlreadyExists {
 		return fmt.Errorf("email already registered")
 	}
 
@@ -57,4 +64,15 @@ func (ri *RegistrationInput) EmailAlreadyRegistered() (bool, error) {
 	}
 
 	return count > 0, nil
+}
+
+// EmailIsValid superficially checks if the email entered is valid or not
+func (ri *RegistrationInput) EmailIsValid() bool {
+	match, err := regexp.MatchString(`\w*\W*@\w*.\w`, ri.Email)
+
+	if err != nil {
+		panic("invalid regex for email validation")
+	}
+
+	return match
 }

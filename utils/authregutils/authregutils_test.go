@@ -5,14 +5,6 @@ import (
 	"testing"
 )
 
-var TestUserInput = model.AddUserInput{
-	Name:     "Some Name",
-	Email:    "someone@test.com",
-	Password: "testPassword",
-	Phone:    nil,
-	Dob:      nil,
-}
-
 func TestNewRegistrationInput (t *testing.T) {
 	ri := NewRegistrationInput(TestUserInput)
 
@@ -25,4 +17,12 @@ func TestNewRegistrationInput (t *testing.T) {
 		t.Log("Incorrect value for NewRegistrationInput Phone field")
 		t.Fail()
 	}
+}
+
+var TestUserInput = model.AddUserInput{
+	Name:     "Some Name",
+	Email:    "someone@test.com",
+	Password: "testPassword",
+	Phone:    nil,
+	Dob:      nil,
 }
