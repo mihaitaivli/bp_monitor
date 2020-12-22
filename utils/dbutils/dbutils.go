@@ -20,6 +20,7 @@ func InitConnection() *mongo.Client {
 	} else {
 		fmt.Println("connected to the db :success")
 	}
+	// todo - address potential leak with mongodb client
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
