@@ -20,12 +20,10 @@ func (r *mutationResolver) AddUser(ctx context.Context, input model.AddUserInput
 	collection := client.Database("bp_log").Collection("users")
 
 	// registration checks
-	registrationInput := authregutils.NewRegistrationInput(input)
+	authRegInputError := authregutils.InputIsValid(input)
 
-	inputError := registrationInput.InputIsValid()
-
-	if inputError != nil {
-		return nil, inputError
+	if authRegInputError != nil {
+		return nil, authRegInputError
 	}
 
 
@@ -57,10 +55,10 @@ func (r *mutationResolver) AddRecord(ctx context.Context, input model.NewRecord)
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	collection := client.Database("bp_log").Collection("users")
 
-	objID, error := primitive.ObjectIDFromHex(id)
-	if error != nil {
-		log.Println(error)
-		return nil, error
+	objID, errorExtracting := primitive.ObjectIDFromHex(id)
+	if errorExtracting != nil {
+		log.Println(errorExtracting)
+		return nil, errorExtracting
 	}
 
 	filter := bson.M{"_id": objID}
