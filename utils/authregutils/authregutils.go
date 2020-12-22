@@ -16,9 +16,9 @@ var client = dbutils.InitConnection()
 func InputIsValid(input model.AddUserInput) error {
 
 	// check if user exists
-	userAlreadyExists, err := emailAlreadyRegistered(input.Email)
+	userAlreadyExists, err := EmailAlreadyRegistered(input.Email)
 	// check if email is valid
-	emailIsValid := emailIsValid(input.Email)
+	emailIsValid := EmailIsValid(input.Email)
 
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func InputIsValid(input model.AddUserInput) error {
 
 // EmailAlreadyRegistered returns a boolean reflecting the existence in the db
 // of an user with the same email address.
-func emailAlreadyRegistered(email string) (bool, error) {
+func EmailAlreadyRegistered(email string) (bool, error) {
 	collection := client.Database("bp_log").Collection("users")
 	filter := bson.D{{"email", email}}
 
@@ -51,8 +51,8 @@ func emailAlreadyRegistered(email string) (bool, error) {
 }
 
 // EmailIsValid superficially checks if the email entered is valid or not
-func emailIsValid(email string) bool {
-	match, err := regexp.MatchString(`\w*\W*@\w+.\w`, email)
+func EmailIsValid(email string) bool {
+	match, err := regexp.MatchString(`\w*\W*@\w+.\w+`, email)
 
 	if err != nil {
 		panic("invalid regex for email validation")

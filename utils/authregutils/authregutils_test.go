@@ -5,29 +5,17 @@ import (
 )
 
 func TestEmailIsValid (t *testing.T) {
-	faultyEmails := []string{
-		"",
-		"a",
-		"@",
-		"a@",
-		"a@.",
-		"a@.com",
-		"a@a",
-		"a@a.",
-	}
-	validEmail := "a@a.com"
-
-	for _, email := range faultyEmails {
-		emailValid := emailIsValid(email)
+	for _, email := range faultyEmailsList {
+		emailValid := EmailIsValid(email)
 		if emailValid == true  {
 			t.Logf("Faulty email %s should be marked as invalid", email)
 			t.Fail()
 		}
 	}
 
-	emailValid := emailIsValid(validEmail)
+	emailValid := EmailIsValid(validEmailExample)
 	if emailValid != true  {
-		t.Logf("valid email %s should pass validation test", validEmail)
+		t.Logf("valid email %s should pass validation test", validEmailExample)
 		t.Fail()
 	}
 }
